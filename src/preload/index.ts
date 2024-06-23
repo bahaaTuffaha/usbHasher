@@ -11,8 +11,12 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
-    contextBridge.exposeInMainWorld('myElectron', {
+    contextBridge.exposeInMainWorld('detectUsb', {
       getUSBDevices: () => ipcRenderer.invoke('get-usb-devices')
+    })
+    contextBridge.exposeInMainWorld('hasherPart', {
+      processDirectory: (directoryPath, outputCSVPath) =>
+        ipcRenderer.invoke('process-directory', directoryPath, outputCSVPath)
     })
   } catch (error) {
     console.error(error)

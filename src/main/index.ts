@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { processDirectory } from './hasher'
 const { exec } = require('child_process')
 const os = require('os')
 
@@ -55,6 +56,7 @@ app.whenReady().then(() => {
 
   // IPC test //////////////////////////////////////////////////////////////////////
   // ipcMain.on('ping', () => console.log('pong'))
+
   function getUSBDevices(): Promise<any[]> {
     return new Promise((resolve, reject) => {
       if (os.platform() !== 'win32') {
@@ -66,15 +68,15 @@ app.whenReady().then(() => {
           // Split output into lines and filter out empty lines
           const lines = stdout
             .trim()
-            .split('\n')
-            .map((line) => line.trim())
-            .filter((line) => line.length > 0)
+            ?.split('\n')
+            ?.map((line) => line.trim())
+            ?.filter((line) => line.length > 0)
 
           // Extract header line
           const header = lines
             .shift()
-            .split(/\s{2,}/)
-            .map((h) => h.trim().toLowerCase())
+            ?.split(/\s{2,}/)
+            ?.map((h) => h.trim().toLowerCase())
 
           // Parse each line into an object
           const devices = lines.map((line) => {
@@ -132,6 +134,15 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error(error)
       return []
+    }
+  })
+
+  ipcMain.handle('process-directory', async (event, directoryPath, outputCSVPath) => {
+    try {
+      await processDirectory(directoryPath, outputCSVPath)
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
     }
   })
 

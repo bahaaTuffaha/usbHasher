@@ -13,6 +13,7 @@ asarUnpack:
   - resources/**
 win:
   executableName: usbhasher
+  requestedExecutionLevel: 'requireAdministrator',
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
