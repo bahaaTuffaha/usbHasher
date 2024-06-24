@@ -23,6 +23,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "csv-parser": "^3.0.0",
     "csv-writer": "^1.6.0",
     "react-router-dom": "^6.23.1"
   },

@@ -1,10 +1,9 @@
 import * as fs from 'fs'
-import * as crypto from 'crypto'
 import * as path from 'path'
 import { createObjectCsvWriter } from 'csv-writer'
-const stream = require('stream/promises')
+import { runWorker } from './compareAndCheck'
 
-function findInDir(dir, fileList = []) {
+export function findInDir(dir, fileList = []) {
   const files = fs.readdirSync(dir)
 
   files.forEach((file) => {
@@ -26,20 +25,9 @@ function findInDir(dir, fileList = []) {
 }
 
 // Function to calculate SHA256 hash
-async function calculateSHA256(filepath) {
-  const input = fs.createReadStream(filepath)
-  const hash = crypto.createHash('sha256')
-
-  // Connect the output of the `input` stream to the input of `hash`
-  // and let Node.js do the streaming
-  await stream.pipeline(input, hash)
-
-  return hash.digest('hex')
-}
 
 // Function to write data to CSV
 async function writeDataToCSV(data, outputPath) {
-  console.log('data:' + data)
   const csvWriter = createObjectCsvWriter({
     path: outputPath,
     header: [
@@ -52,14 +40,33 @@ async function writeDataToCSV(data, outputPath) {
   console.log('CSV file written successfully.')
 }
 
+export async function checkIfFileExists(filePath: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    fs.stat(filePath, function (err, stat) {
+      if (err == null) {
+        resolve(true)
+      } else if (err.code === 'ENOENT') {
+        // file does not exist
+        resolve(false)
+      } else {
+        console.log('Some other error: ', err.code)
+        resolve(false)
+      }
+    })
+  })
+}
+
 // Main function to process directory
 export async function processDirectory(dir, outputPath) {
   const files = await findInDir(dir)
   console.log(files)
+  const workerPromises = files.map((filePath) => runWorker(filePath))
+  const shaResult = await Promise.all(workerPromises)
+
   const data = await Promise.all(
-    files.map(async (filePath) => ({
+    files.map(async (filePath, index) => ({
       path: filePath,
-      sha256: await calculateSHA256(filePath)
+      sha256: shaResult[index].newSha
     }))
   )
   await writeDataToCSV(data, outputPath)
