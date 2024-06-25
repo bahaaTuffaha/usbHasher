@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { createObjectCsvWriter } from 'csv-writer'
-import { runWorker } from './compareAndCheck'
+import { onComplete, runWorker } from './compareAndCheck'
 
 export function findInDir(dir, fileList = []) {
   const files = fs.readdirSync(dir)
@@ -11,13 +11,16 @@ export function findInDir(dir, fileList = []) {
     try {
       const fileStat = fs.lstatSync(filePath)
 
-      if (fileStat.isDirectory()) {
+      // Exclude "System Volume Information" directory
+      if (fileStat.isDirectory() && file !== 'System Volume Information') {
         findInDir(filePath, fileList)
       } else {
         fileList.push(filePath)
       }
     } catch (e) {
-      console.log(e)
+      if (e.code !== 'EPERM') {
+        console.log(e)
+      }
     }
   })
 
@@ -58,9 +61,10 @@ export async function checkIfFileExists(filePath: string): Promise<boolean> {
 
 // Main function to process directory
 export async function processDirectory(dir, outputPath) {
-  const files = await findInDir(dir)
+  let files = await findInDir(dir)
+  files = files.filter((file: string) => !file.includes('output.csv'))
   console.log(files)
-  const workerPromises = files.map((filePath) => runWorker(filePath))
+  const workerPromises = files.map((filePath) => runWorker(filePath, files.length, onComplete))
   const shaResult = await Promise.all(workerPromises)
 
   const data = await Promise.all(

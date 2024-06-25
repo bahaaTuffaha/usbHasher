@@ -18,6 +18,10 @@ if (process.contextIsolated) {
       processDirectory: (directoryPath, outputCSVPath) =>
         ipcRenderer.invoke('process-directory', directoryPath, outputCSVPath)
     })
+    contextBridge.exposeInMainWorld('storageApi', {
+      getSharedData: async (key) => await ipcRenderer.invoke('get-shared-data', key),
+      setSharedData: async (key, value) => await ipcRenderer.invoke('set-shared-data', key, value)
+    })
   } catch (error) {
     console.error(error)
   }

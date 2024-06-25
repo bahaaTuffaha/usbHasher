@@ -4,8 +4,9 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { checkIfFileExists, processDirectory } from './hasher'
 import { getUSBDevices } from './getUsbDevices'
-import { compareHashCodes } from './CompareAndCheck'
+import { compareHashCodes } from './compareAndCheck'
 
+global.sharedData = { percentage: 0, index: 0 }
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -66,8 +67,7 @@ app.whenReady().then(() => {
       return []
     }
   })
-
-  ipcMain.handle('process-directory', async (event, directoryPath, outputCSVPath) => {
+  ipcMain.handleOnce('process-directory', async (event, directoryPath, outputCSVPath) => {
     try {
       if (await checkIfFileExists(`${directoryPath}\\output.csv`)) {
         return await compareHashCodes(directoryPath)
@@ -78,6 +78,14 @@ app.whenReady().then(() => {
     } catch (error) {
       return { success: false, error: error.message }
     }
+  })
+
+  ipcMain.handle('get-shared-data', (event, key) => {
+    return global.sharedData[key]
+  })
+
+  ipcMain.handle('set-shared-data', (event, key, value) => {
+    global.sharedData[key] = value
   })
 
   createWindow()

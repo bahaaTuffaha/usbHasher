@@ -6,6 +6,7 @@ export const DevicesList = ({
   setUsbPath: Dispatch<SetStateAction<string>>
 }): JSX.Element => {
   const [usbDevices, setUsbDevices] = useState<USBDeviceType[]>([])
+  const [refresh, setRefresh] = useState(false)
 
   useEffect(() => {
     const fetchUsbDevices = async () => {
@@ -18,7 +19,7 @@ export const DevicesList = ({
     }
 
     fetchUsbDevices()
-  }, [])
+  }, [refresh])
 
   const handleSelectChange = (event) => {
     setUsbPath(event.target.value)
@@ -28,6 +29,7 @@ export const DevicesList = ({
     <div className="flex items-center justify-center bg-gray-100">
       <select
         onChange={handleSelectChange}
+        onClick={() => setRefresh((prev) => !prev)}
         className="bg-white border border-gray-300 rounded-lg p-2 shadow-md text-black"
       >
         <option value="">Select a USB device</option>
