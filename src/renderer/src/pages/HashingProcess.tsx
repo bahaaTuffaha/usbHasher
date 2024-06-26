@@ -1,11 +1,12 @@
 import { HashComparisonTable } from '@renderer/components/ComparisonTable'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 export type compareDataType = {
   path: string
   oldSha: string
   newSha: string
+  state: string
   lastModified: Date
 }
 
@@ -16,26 +17,26 @@ export const HashingProcess = () => {
   const [compareData, setCompareData] = useState<compareDataType[]>([])
   const [Percentage, setPercentage] = useState(0)
 
-  useEffect(() => {
-    const hashing = async () => {
-      try {
-        setIsLoading(true)
-        // window.storageApi.setSharedData('percentage', 0)
-        const result = await window.hasherPart.processDirectory(path, `${path}\\output.csv`)
-        if (Array.isArray(result)) {
-          setCompareData(result)
-          setIsLoading(false)
-        } else if (result?.success == true) {
-          setIsLoading(false)
-        }
-      } catch (error) {
-        console.error('Failed to hash files:', error)
+  const memoizedHashing = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      // window.storageApi.setSharedData('percentage', 0)
+      const result = await window.hasherPart.processDirectory(path, `${path}\\output.csv`)
+      if (Array.isArray(result)) {
+        setCompareData(result)
+        setIsLoading(false)
+      } else if (result?.success === true) {
         setIsLoading(false)
       }
+    } catch (error) {
+      console.error('Failed to hash files:', error)
+      setIsLoading(false)
     }
+  }, [path])
 
-    hashing()
-  }, [])
+  useEffect(() => {
+    memoizedHashing()
+  }, [memoizedHashing])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,8 +56,9 @@ export const HashingProcess = () => {
 
   return (
     <div>
-      <h1>Hashing {path} ...</h1>
-      <h2>Please Wait this will take time specially big files bigger than 2 GB!</h2>
+      {isLoading && <h1>Hashing {path} ...</h1>}
+      {isLoading && <h2>Please Wait this will take time specially big files bigger than 2 GB</h2>}
+      {compareData.length == 0 && !isLoading && <h1>Scan completed. Nothing Changed</h1>}
       {isLoading && (
         <div className="border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600" />
       )}

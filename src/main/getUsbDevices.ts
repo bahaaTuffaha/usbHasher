@@ -4,9 +4,28 @@ const os = require('os')
 export function getUSBDevices(): Promise<any[]> {
   return new Promise((resolve, reject) => {
     if (os.platform() !== 'win32') {
-      console.log(
-        'linux code here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-      )
+      const command = `df -Th | grep media`
+      exec(command, (error, stdout) => {
+        if (error) {
+          reject(`exec error: ${error}`)
+          return
+        }
+
+        const lines = stdout
+          .trim()
+          .split('\n')
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0)
+
+        const devices = lines.map((line) => {
+          const values = line.split(/\s+/)
+          return {
+            deviceid: values[6],
+            volumename: values[6].split('/').at(-1)
+          }
+        })
+        resolve(devices)
+      })
     } else {
       exec(
         'wmic logicaldisk where drivetype=2 get deviceid, volumename, description',

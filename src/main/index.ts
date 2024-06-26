@@ -39,6 +39,10 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  // close all Listeners when I hit x
+  mainWindow.on('close', (event) => {
+    mainWindow.removeAllListeners()
+  })
 }
 
 // This method will be called when Electron has finished
@@ -67,7 +71,7 @@ app.whenReady().then(() => {
       return []
     }
   })
-  ipcMain.handleOnce('process-directory', async (event, directoryPath, outputCSVPath) => {
+  ipcMain.handle('process-directory', async (event, directoryPath, outputCSVPath) => {
     try {
       if (await checkIfFileExists(`${directoryPath}\\output.csv`)) {
         return await compareHashCodes(directoryPath)

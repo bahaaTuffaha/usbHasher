@@ -16,6 +16,7 @@ export const HashComparisonTable = ({ data }: { data: compareDataType[] }) => {
               <th className="border border-gray-300 px-4 py-2">Path</th>
               <th className="border border-gray-300 px-4 py-2">Old SHA-256</th>
               <th className="border border-gray-300 px-4 py-2">New SHA-256</th>
+              <th className="border border-gray-300 px-4 py-2">State</th>
               <th className="border border-gray-300 px-4 py-2">Last Modified</th>
             </tr>
           </thead>
@@ -25,6 +26,7 @@ export const HashComparisonTable = ({ data }: { data: compareDataType[] }) => {
                 <td className="border border-gray-300 px-4 py-2">{item.path}</td>
                 <td className="border border-gray-300 px-4 py-2">{item.oldSha}</td>
                 <td className="border border-gray-300 px-4 py-2">{item.newSha}</td>
+                <td className="border border-gray-300 px-4 py-2">{item.state}</td>
                 <td className="border border-gray-300 px-4 py-2">
                   {new Date(item.lastModified).toLocaleString()}
                 </td>

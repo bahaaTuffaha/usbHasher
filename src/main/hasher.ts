@@ -35,7 +35,7 @@ async function writeDataToCSV(data, outputPath) {
     path: outputPath,
     header: [
       { id: 'path', title: 'Path' },
-      { id: 'sha256', title: 'SHA-256' }
+      { id: 'newSha', title: 'SHA-256' }
     ]
   })
 
@@ -63,15 +63,9 @@ export async function checkIfFileExists(filePath: string): Promise<boolean> {
 export async function processDirectory(dir, outputPath) {
   let files = await findInDir(dir)
   files = files.filter((file: string) => !file.includes('output.csv'))
-  console.log(files)
+  global.sharedData['percentage'] = 0
   const workerPromises = files.map((filePath) => runWorker(filePath, files.length, onComplete))
   const shaResult = await Promise.all(workerPromises)
 
-  const data = await Promise.all(
-    files.map(async (filePath, index) => ({
-      path: filePath,
-      sha256: shaResult[index].newSha
-    }))
-  )
-  await writeDataToCSV(data, outputPath)
+  await writeDataToCSV(shaResult, outputPath)
 }
