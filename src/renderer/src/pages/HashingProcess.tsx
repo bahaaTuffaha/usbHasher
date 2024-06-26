@@ -16,8 +16,11 @@ export const HashingProcess = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [compareData, setCompareData] = useState<compareDataType[]>([])
   const [Percentage, setPercentage] = useState(0)
-
+  const [currentMessage, setCurrentMessage] = useState('')
+  const message1 = 'Scan completed. Nothing Changed'
+  const message2 = 'Scan completed. CSV File Created'
   const memoizedHashing = useCallback(async () => {
+    await window.gateApi.openGate()
     try {
       setIsLoading(true)
       // window.storageApi.setSharedData('percentage', 0)
@@ -25,7 +28,9 @@ export const HashingProcess = () => {
       if (Array.isArray(result)) {
         setCompareData(result)
         setIsLoading(false)
+        setCurrentMessage(message1)
       } else if (result?.success === true) {
+        setCurrentMessage(message2)
         setIsLoading(false)
       }
     } catch (error) {
@@ -58,7 +63,7 @@ export const HashingProcess = () => {
     <div>
       {isLoading && <h1>Hashing {path} ...</h1>}
       {isLoading && <h2>Please Wait this will take time specially big files bigger than 2 GB</h2>}
-      {compareData.length == 0 && !isLoading && <h1>Scan completed. Nothing Changed</h1>}
+      {compareData.length == 0 && !isLoading && <h1>{currentMessage}</h1>}
       {isLoading && (
         <div className="border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600" />
       )}

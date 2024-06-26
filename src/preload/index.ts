@@ -22,6 +22,10 @@ if (process.contextIsolated) {
       getSharedData: async (key) => await ipcRenderer.invoke('get-shared-data', key),
       setSharedData: async (key, value) => await ipcRenderer.invoke('set-shared-data', key, value)
     })
+    contextBridge.exposeInMainWorld('gateApi', {
+      openGate: async () => await ipcRenderer.invoke('openGate'),
+      closeGate: async () => await ipcRenderer.invoke('closeGate')
+    })
   } catch (error) {
     console.error(error)
   }

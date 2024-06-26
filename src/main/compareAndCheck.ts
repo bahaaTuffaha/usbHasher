@@ -26,9 +26,7 @@ export async function runWorker(
   })
 }
 export function onComplete(totalFiles, filepath) {
-  global.sharedData['percentage'] = Math.trunc(
-    ((global.sharedData['index']++ / totalFiles) * 100) / 2
-  )
+  global.sharedData['percentage'] = Math.trunc((global.sharedData['index']++ / totalFiles) * 100)
 }
 
 async function detectChanges(files1, files2) {
@@ -71,6 +69,7 @@ async function detectChanges(files1, files2) {
 export async function compareHashCodes(dir) {
   let files = await findInDir(dir)
   files = files.filter((file: string) => !file.includes('output.csv'))
+  console.log(files.length)
   let results = []
   global.sharedData['percentage'] = 0
   const workerPromises = files.map((filePath) => runWorker(filePath, files.length, onComplete))

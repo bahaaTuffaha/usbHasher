@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { createObjectCsvWriter } from 'csv-writer'
 import { onComplete, runWorker } from './compareAndCheck'
+const child_process = require('child_process')
 
 export function findInDir(dir, fileList = []) {
   const files = fs.readdirSync(dir)
@@ -27,7 +28,34 @@ export function findInDir(dir, fileList = []) {
   return fileList
 }
 
-// Function to calculate SHA256 hash
+async function hideFile(filePath) {
+  return new Promise((resolve, reject) => {
+    if (process.platform === 'win32') {
+      // Windows specific command to hide the file
+      child_process.exec(`attrib +H "${filePath}"`, (err) => {
+        if (err) {
+          console.error('Error hiding file:', err)
+          return reject(err)
+        }
+        console.log('File is hidden')
+        resolve()
+      })
+    } else if (process.platform === 'darwin' || process.platform === 'linux') {
+      // MacOS/Linux specific command to hide the file (dot prefix)
+      const hiddenFilePath = path.join(path.dirname(filePath), `.${path.basename(filePath)}`)
+      fs.rename(filePath, hiddenFilePath, (err) => {
+        if (err) {
+          console.error('Error hiding file:', err)
+          return reject(err)
+        }
+        console.log('File is hidden')
+        resolve()
+      })
+    } else {
+      resolve()
+    }
+  })
+}
 
 // Function to write data to CSV
 async function writeDataToCSV(data, outputPath) {
@@ -41,6 +69,9 @@ async function writeDataToCSV(data, outputPath) {
 
   await csvWriter.writeRecords(data)
   console.log('CSV file written successfully.')
+
+  // Hide the file
+  await hideFile(outputPath)
 }
 
 export async function checkIfFileExists(filePath: string): Promise<boolean> {

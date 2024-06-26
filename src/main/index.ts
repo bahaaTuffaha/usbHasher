@@ -6,7 +6,7 @@ import { checkIfFileExists, processDirectory } from './hasher'
 import { getUSBDevices } from './getUsbDevices'
 import { compareHashCodes } from './compareAndCheck'
 
-global.sharedData = { percentage: 0, index: 0 }
+global.sharedData = { percentage: 0, index: 0, gate: false }
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -62,25 +62,26 @@ app.whenReady().then(() => {
   // IPC test //////////////////////////////////////////////////////////////////////
   // ipcMain.on('ping', () => console.log('pong'))
   // Register an IPC handler for getting USB devices
-  ipcMain.handle('get-usb-devices', async () => {
-    try {
-      const devices = await getUSBDevices()
-      return devices
-    } catch (error) {
-      console.error(error)
-      return []
-    }
+  ipcMain.handle('get-usb-devices', () => {
+    return getUSBDevices()
+      .then((devices) => devices)
+      .catch((error) => {
+        console.error(error)
+        return []
+      })
   })
-  ipcMain.handle('process-directory', async (event, directoryPath, outputCSVPath) => {
-    try {
-      if (await checkIfFileExists(`${directoryPath}\\output.csv`)) {
-        return await compareHashCodes(directoryPath)
-      } else {
-        await processDirectory(directoryPath, outputCSVPath)
-        return { success: true }
-      }
-    } catch (error) {
-      return { success: false, error: error.message }
+  ipcMain.handle('process-directory', (event, directoryPath, outputCSVPath) => {
+    if (global.sharedData['gate']) {
+      global.sharedData['gate'] = false
+      return checkIfFileExists(`${directoryPath}\\output.csv`)
+        .then((exists) => {
+          if (exists) {
+            return compareHashCodes(directoryPath)
+          } else {
+            return processDirectory(directoryPath, outputCSVPath).then(() => ({ success: true }))
+          }
+        })
+        .catch((error) => ({ success: false, error: error.message }))
     }
   })
 
@@ -90,6 +91,12 @@ app.whenReady().then(() => {
 
   ipcMain.handle('set-shared-data', (event, key, value) => {
     global.sharedData[key] = value
+  })
+  ipcMain.handle('openGate', () => {
+    global.sharedData['gate'] = true
+  })
+  ipcMain.handle('closeGate', () => {
+    global.sharedData['gate'] = false
   })
 
   createWindow()
