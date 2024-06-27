@@ -10,7 +10,7 @@ export const MainPage = () => {
     <>
       <div className="creator">Powered by electron-vite</div>
       <div className="text">
-        Hash all the files in <span className="react">Usb Drive</span>
+        Hash all the files in <span className="text-[#6C0036] font-[700]">Usb Drive</span>
         &nbsp;and <span className="ts">Check for any changes.</span>
       </div>
       <p className="tip">
@@ -18,11 +18,15 @@ export const MainPage = () => {
       </p>
       <DevicesList setUsbPath={setUsbPath} />
       <div className="actions">
-        <Link to="/hashing" state={{ path: usbPath }}>
-          <MainButton text="Next" />
+        <Link
+          className={`${usbPath.length <= 0 ? 'pointer-events-none' : ''}`}
+          to="/hashing"
+          state={{ path: usbPath }}
+        >
+          <MainButton disabled={usbPath.length <= 0} text="Next" />
         </Link>
       </div>
-      <Versions></Versions>
+      <Versions />
     </>
   )
 }

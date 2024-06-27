@@ -1,4 +1,5 @@
 import { HashComparisonTable } from '@renderer/components/ComparisonTable'
+import { MainButton } from '@renderer/components/MainButton'
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -8,6 +9,7 @@ export type compareDataType = {
   newSha: string
   state: string
   lastModified: Date
+  creationDate: Date
 }
 
 export const HashingProcess = () => {
@@ -17,10 +19,14 @@ export const HashingProcess = () => {
   const [compareData, setCompareData] = useState<compareDataType[]>([])
   const [Percentage, setPercentage] = useState(0)
   const [currentMessage, setCurrentMessage] = useState('')
+  const [rescan, setRescan] = useState(false)
   const message1 = 'Scan completed. Nothing Changed'
   const message2 = 'Scan completed. CSV File Created'
   const memoizedHashing = useCallback(async () => {
     await window.gateApi.openGate()
+    await window.storageApi.setSharedData('percentage', 0)
+    await window.storageApi.setSharedData('index', 0)
+    setCompareData([])
     try {
       setIsLoading(true)
       // window.storageApi.setSharedData('percentage', 0)
@@ -37,7 +43,7 @@ export const HashingProcess = () => {
       console.error('Failed to hash files:', error)
       setIsLoading(false)
     }
-  }, [path])
+  }, [path, rescan])
 
   useEffect(() => {
     memoizedHashing()
@@ -52,12 +58,15 @@ export const HashingProcess = () => {
     fetchData() // Fetch data initially
 
     const interval = setInterval(() => {
-      fetchData() // Fetch data every 2 seconds
+      if (isLoading) {
+        fetchData() // Fetch data every 2 seconds
+        console.log('dfsdf')
+      }
     }, 2000)
 
     // Cleanup function to clear the interval when the component unmounts or when the effect is re-run
     return () => clearInterval(interval)
-  }, [])
+  }, [isLoading])
 
   return (
     <div>
@@ -70,6 +79,15 @@ export const HashingProcess = () => {
       {compareData.length > 0 && <h1>Csv found</h1>}
       {compareData.length > 0 && <HashComparisonTable data={compareData} />}
       {isLoading && <h1>{Percentage + '%'}</h1>}
+      {/* {!isLoading &&<MainButton text='Update'/>} */}
+      {!isLoading && (
+        <MainButton
+          onClick={async () => {
+            setRescan((prev) => !prev)
+          }}
+          text="Rescan"
+        />
+      )}
     </div>
   )
 }

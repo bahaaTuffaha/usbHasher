@@ -37,14 +37,15 @@ async function detectChanges(files1, files2) {
   for (const file1 of files1) {
     const file2 = map2.get(file1.path)
     if (!file2) {
-      changes.push({ ...file1, state: 'removed' })
+      changes.push({ ...file1, state: 'Removed' })
     } else if (file1.oldSha !== file2.newSha) {
       const stats = await fs.promises.stat(file1.path)
       changes.push({
         ...file1,
-        state: 'modified',
+        state: 'Modified',
         newSha: file2.newSha,
-        lastModified: stats.mtime
+        lastModified: stats.mtime,
+        creationDate: stats.birthtime
       })
     }
   }
@@ -56,9 +57,10 @@ async function detectChanges(files1, files2) {
       const stats = await fs.promises.stat(file2.path)
       changes.push({
         ...file2,
-        state: 'added',
+        state: 'Added',
         newSha: file2.newSha,
-        lastModified: stats.mtime
+        lastModified: stats.mtime,
+        creationDate: stats.birthtime
       })
     }
   }

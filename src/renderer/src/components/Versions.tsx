@@ -1,13 +1,22 @@
 import { useState } from 'react'
-
+import githubLogo from './../assets/github-mark-white.svg'
 function Versions(): JSX.Element {
   const [versions] = useState(window.electron.process.versions)
 
   return (
     <ul className="versions">
-      <li className="electron-version">Electron v{versions.electron}</li>
-      <li className="chrome-version">Chromium v{versions.chrome}</li>
-      <li className="node-version">Node v{versions.node}</li>
+      <li>
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/bahaaTuffaha">
+          <img className="inline" src={githubLogo} height={20} width={20} /> Bahaa Tuffaha
+        </a>
+      </li>
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://paypal.me/BahaaTuffaha?country.x=SA&locale.x=en_US"
+      >
+        <li>Donation 💖</li>
+      </a>
     </ul>
   )
 }
