@@ -1,7 +1,7 @@
 import { findInDir } from './hasher'
 const { Worker } = require('worker_threads')
 import * as fs from 'fs'
-const csv = require('csv-parser')
+const { parse } = require('@fast-csv/parse')
 import createWorker from './sha256Worker?nodeWorker'
 
 export async function runWorker(
@@ -79,14 +79,15 @@ export async function compareHashCodes(dir) {
   const shaResult = await Promise.all(workerPromises)
 
   return new Promise((resolve, reject) => {
-    fs.createReadStream(`${dir}\\output.csv`)
-      .pipe(csv(['path', 'sha256']))
-      .on('data', async (row) => {
+    const results = []
+    fs.createReadStream(`${dir}/output.csv`)
+      .pipe(parse({ headers: ['path', 'sha256'] }))
+      .on('data', (row) => {
         const { path: filePath, sha256: oldSha } = row
         results.push({ path: filePath, oldSha })
       })
-      .on('end', async () => {
-        //remove csv header
+      .on('end', () => {
+        // Remove CSV header
         results.shift()
 
         const changes = detectChanges(results, shaResult)

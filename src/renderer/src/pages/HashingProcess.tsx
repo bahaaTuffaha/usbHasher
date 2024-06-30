@@ -74,7 +74,7 @@ export const HashingProcess = () => {
       {isLoading && <h2>Please Wait this will take time specially big files bigger than 2 GB</h2>}
       {compareData.length == 0 && !isLoading && <h1>{currentMessage}</h1>}
       {isLoading && (
-        <div className="border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600" />
+        <div className="border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-red-600" />
       )}
       {compareData.length > 0 && <h1>Csv found</h1>}
       {compareData.length > 0 && <HashComparisonTable data={compareData} />}

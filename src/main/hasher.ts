@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { createObjectCsvWriter } from 'csv-writer'
+const { format } = require('@fast-csv/format')
 import { onComplete, runWorker } from './compareAndCheck'
 const child_process = require('child_process')
 
@@ -59,19 +59,31 @@ async function hideFile(filePath) {
 
 // Function to write data to CSV
 async function writeDataToCSV(data, outputPath) {
-  const csvWriter = createObjectCsvWriter({
-    path: outputPath,
-    header: [
-      { id: 'path', title: 'Path' },
-      { id: 'newSha', title: 'SHA-256' }
-    ]
+  return new Promise((resolve, reject) => {
+    const writableStream = fs.createWriteStream(outputPath)
+
+    writableStream.on('finish', async () => {
+      console.log('CSV file written successfully.')
+
+      // Hide the file
+      await hideFile(outputPath)
+      resolve()
+    })
+
+    writableStream.on('error', reject)
+
+    const csvStream = format({ headers: ['Path', 'SHA-256'] })
+    csvStream.pipe(writableStream)
+
+    data.forEach((row) => {
+      csvStream.write({
+        Path: row.path,
+        'SHA-256': row.newSha
+      })
+    })
+
+    csvStream.end()
   })
-
-  await csvWriter.writeRecords(data)
-  console.log('CSV file written successfully.')
-
-  // Hide the file
-  await hideFile(outputPath)
 }
 
 export async function checkIfFileExists(filePath: string): Promise<boolean> {
