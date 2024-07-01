@@ -24,7 +24,8 @@ if (process.contextIsolated) {
     })
     contextBridge.exposeInMainWorld('gateApi', {
       openGate: async () => await ipcRenderer.invoke('openGate'),
-      closeGate: async () => await ipcRenderer.invoke('closeGate')
+      closeGate: async () => await ipcRenderer.invoke('closeGate'),
+      setUpdateFileFalse: async () => await ipcRenderer.invoke('setUpdateFileFalse')
     })
   } catch (error) {
     console.error(error)

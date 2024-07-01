@@ -30,7 +30,7 @@ export const HashingProcess = () => {
     try {
       setIsLoading(true)
       // window.storageApi.setSharedData('percentage', 0)
-      const result = await window.hasherPart.processDirectory(path, `${path}\\output.csv`)
+      const result = await window.hasherPart.processDirectory(path, `${path}/usbHasher.csv`)
       if (Array.isArray(result)) {
         setCompareData(result)
         setIsLoading(false)
@@ -86,6 +86,15 @@ export const HashingProcess = () => {
             setRescan((prev) => !prev)
           }}
           text="Rescan"
+        />
+      )}
+      {!isLoading && (
+        <MainButton
+          onClick={async () => {
+            await window.gateApi.setUpdateFileFalse()
+            setRescan((prev) => !prev)
+          }}
+          text="Re-hash/Update"
         />
       )}
     </div>

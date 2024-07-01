@@ -70,7 +70,7 @@ async function detectChanges(files1, files2) {
 
 export async function compareHashCodes(dir) {
   let files = await findInDir(dir)
-  files = files.filter((file: string) => !file.includes('output.csv'))
+  files = files.filter((file: string) => !file.includes('usbHasher.csv'))
   console.log(files.length)
   let results = []
   global.sharedData['percentage'] = 0
@@ -80,7 +80,7 @@ export async function compareHashCodes(dir) {
 
   return new Promise((resolve, reject) => {
     const results = []
-    fs.createReadStream(`${dir}/output.csv`)
+    fs.createReadStream(`${dir}/usbHasher.csv`)
       .pipe(parse({ headers: ['path', 'sha256'] }))
       .on('data', (row) => {
         const { path: filePath, sha256: oldSha } = row
@@ -93,6 +93,8 @@ export async function compareHashCodes(dir) {
         const changes = detectChanges(results, shaResult)
         resolve(changes)
       })
-      .on('error', reject)
+      .on('error', (e) => {
+        reject(), console.log('error at compareHash: ' + e)
+      })
   })
 }

@@ -70,10 +70,15 @@ async function writeDataToCSV(data, outputPath) {
       resolve()
     })
 
-    writableStream.on('error', reject)
+    writableStream.on('error', (e) => {
+      reject(), console.log(e)
+    })
 
     const csvStream = format({ headers: ['Path', 'SHA-256'] })
-    csvStream.pipe(writableStream)
+    csvStream
+      .pipe(writableStream)
+      .on('error', (e) => console.log(e))
+      .on('finish', () => console.log(' csvStream done'))
 
     data.forEach((row) => {
       csvStream.write({
@@ -105,7 +110,7 @@ export async function checkIfFileExists(filePath: string): Promise<boolean> {
 // Main function to process directory
 export async function processDirectory(dir, outputPath) {
   let files = await findInDir(dir)
-  files = files.filter((file: string) => !file.includes('output.csv'))
+  files = files.filter((file: string) => !file.includes('usbHasher.csv'))
   global.sharedData['percentage'] = 0
   const workerPromises = files.map((filePath) => runWorker(filePath, files.length, onComplete))
   const shaResult = await Promise.all(workerPromises)

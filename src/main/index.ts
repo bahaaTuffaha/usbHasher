@@ -5,8 +5,9 @@ import icon from '../../resources/icon.png?asset'
 import { checkIfFileExists, processDirectory } from './hasher'
 import { getUSBDevices } from './getUsbDevices'
 import { compareHashCodes } from './compareAndCheck'
+import fs from 'fs'
 
-global.sharedData = { percentage: 0, index: 0, gate: false }
+global.sharedData = { percentage: 0, index: 0, gate: false, updateFile: true }
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -73,11 +74,21 @@ app.whenReady().then(() => {
   ipcMain.handle('process-directory', (event, directoryPath, outputCSVPath) => {
     if (global.sharedData['gate']) {
       global.sharedData['gate'] = false
-      return checkIfFileExists(`${directoryPath}\\output.csv`)
+      return checkIfFileExists(`${directoryPath}/usbHasher.csv`)
         .then((exists) => {
-          if (exists) {
+          if (exists && global.sharedData['updateFile']) {
             return compareHashCodes(directoryPath)
           } else {
+            if (global.sharedData['updateFile'] == false) {
+              fs.unlink(`${directoryPath}/usbHasher.csv`, (err) => {
+                if (err) {
+                  console.error(err)
+                } else {
+                  console.log('File is deleted.')
+                }
+              })
+            }
+            global.sharedData['updateFile'] = true // set it back to true to give exists control over this cond.
             return processDirectory(directoryPath, outputCSVPath).then(() => ({ success: true }))
           }
         })
@@ -97,6 +108,9 @@ app.whenReady().then(() => {
   })
   ipcMain.handle('closeGate', () => {
     global.sharedData['gate'] = false
+  })
+  ipcMain.handle('setUpdateFileFalse', () => {
+    global.sharedData['updateFile'] = false
   })
 
   createWindow()
