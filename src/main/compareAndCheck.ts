@@ -5,6 +5,7 @@ const { parse } = require('@fast-csv/parse')
 import createWorker from './sha256Worker?nodeWorker'
 
 export async function runWorker(
+  dir: string,
   filepath: string,
   totalFiles: number,
   onComplete: (result: any, filepath: any) => void
@@ -14,7 +15,7 @@ export async function runWorker(
       workerData: { filePath: filepath, totalFiles: totalFiles }
     })
     worker.on('message', (newSha) => {
-      resolve({ newSha, path: filepath }), onComplete(totalFiles, filepath)
+      resolve({ newSha, path: filepath.replace(dir, '') }), onComplete(totalFiles, filepath)
     })
     worker.on('error', reject)
     worker.on('exit', (code) => {
@@ -70,11 +71,12 @@ async function detectChanges(files1, files2) {
 
 export async function compareHashCodes(dir) {
   let files = await findInDir(dir)
-  files = files.filter((file: string) => !file.includes('usbHasher.csv'))
-  console.log(files.length)
+  files = files.filter(
+    (file: string) => !file.includes('usbHasher.csv') && !file.includes('System Volume Information')
+  )
   let results = []
   global.sharedData['percentage'] = 0
-  const workerPromises = files.map((filePath) => runWorker(filePath, files.length, onComplete))
+  const workerPromises = files.map((filePath) => runWorker('', filePath, files.length, onComplete))
   // Wait for all worker promises to resolve before processing the CSV
   const shaResult = await Promise.all(workerPromises)
 
@@ -84,12 +86,11 @@ export async function compareHashCodes(dir) {
       .pipe(parse({ headers: ['path', 'sha256'] }))
       .on('data', (row) => {
         const { path: filePath, sha256: oldSha } = row
-        results.push({ path: filePath, oldSha })
+        results.push({ path: `${dir + filePath}`, oldSha })
       })
       .on('end', () => {
         // Remove CSV header
         results.shift()
-
         const changes = detectChanges(results, shaResult)
         resolve(changes)
       })

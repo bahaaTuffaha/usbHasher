@@ -60,7 +60,6 @@ export const HashingProcess = () => {
     const interval = setInterval(() => {
       if (isLoading) {
         fetchData() // Fetch data every 2 seconds
-        console.log('dfsdf')
       }
     }, 2000)
 
@@ -85,7 +84,7 @@ export const HashingProcess = () => {
           onClick={async () => {
             setRescan((prev) => !prev)
           }}
-          text="Rescan"
+          text="Scan for Changes"
         />
       )}
       {!isLoading && (

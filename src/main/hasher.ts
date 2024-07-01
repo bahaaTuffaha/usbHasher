@@ -112,7 +112,7 @@ export async function processDirectory(dir, outputPath) {
   let files = await findInDir(dir)
   files = files.filter((file: string) => !file.includes('usbHasher.csv'))
   global.sharedData['percentage'] = 0
-  const workerPromises = files.map((filePath) => runWorker(filePath, files.length, onComplete))
+  const workerPromises = files.map((filePath) => runWorker(dir, filePath, files.length, onComplete))
   const shaResult = await Promise.all(workerPromises)
 
   await writeDataToCSV(shaResult, outputPath)
