@@ -79,7 +79,21 @@ code {
   background-color: rgba(0, 0, 0, 0.50);
 }
 
+.accordion {
+  list-style: none;
+}
 
+.accordion_item {
+  border-top: 1px solid #9f9f9f;
+}
+.accordion_item.active .button {
+  background-color: #105057;
+}
+.answer_wrapper {
+  height: 0;
+  overflow: hidden;
+  transition: height ease 0.2s;
+}
 .tip {
   font-size: 16px;
   line-height: 24px;

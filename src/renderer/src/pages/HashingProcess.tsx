@@ -1,4 +1,4 @@
-import { HashComparisonTable } from '@renderer/components/ComparisonTable'
+import { ComparisonAccordion } from '@renderer/components/ComparisonAccordion'
 import { MainButton } from '@renderer/components/MainButton'
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -76,7 +76,7 @@ export const HashingProcess = () => {
         <div className="border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-red-600" />
       )}
       {compareData.length > 0 && <h1>Csv found</h1>}
-      {compareData.length > 0 && <HashComparisonTable data={compareData} />}
+      {compareData.length > 0 && <ComparisonAccordion data={compareData} />}
       {isLoading && <h1>{Percentage + '%'}</h1>}
       {/* {!isLoading &&<MainButton text='Update'/>} */}
       {!isLoading && (
