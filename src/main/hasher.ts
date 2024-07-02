@@ -110,7 +110,12 @@ export async function checkIfFileExists(filePath: string): Promise<boolean> {
 // Main function to process directory
 export async function processDirectory(dir, outputPath) {
   let files = await findInDir(dir)
-  files = files.filter((file: string) => !file.includes('usbHasher.csv'))
+  files = files.filter(
+    (file: string) =>
+      !file.includes('usbHasher.csv') &&
+      !file.includes('.usbHasher.csv') &&
+      !file.includes('System Volume Information')
+  )
   global.sharedData['percentage'] = 0
   const workerPromises = files.map((filePath) => runWorker(dir, filePath, files.length, onComplete))
   const shaResult = await Promise.all(workerPromises)

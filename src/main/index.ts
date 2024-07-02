@@ -6,6 +6,7 @@ import { checkIfFileExists, processDirectory } from './hasher'
 import { getUSBDevices } from './getUsbDevices'
 import { compareHashCodes } from './compareAndCheck'
 import fs from 'fs'
+const os = require('os')
 
 global.sharedData = { percentage: 0, index: 0, gate: false, updateFile: true }
 function createWindow(): void {
@@ -74,7 +75,11 @@ app.whenReady().then(() => {
   ipcMain.handle('process-directory', (event, directoryPath, outputCSVPath) => {
     if (global.sharedData['gate']) {
       global.sharedData['gate'] = false
-      return checkIfFileExists(`${directoryPath}/usbHasher.csv`)
+      return checkIfFileExists(
+        os.platform() !== 'win32'
+          ? `${directoryPath}/.usbHasher.csv`
+          : `${directoryPath}/usbHasher.csv`
+      )
         .then((exists) => {
           if (exists && global.sharedData['updateFile']) {
             return compareHashCodes(directoryPath)
@@ -82,7 +87,7 @@ app.whenReady().then(() => {
             if (global.sharedData['updateFile'] == false) {
               fs.unlink(`${directoryPath}/usbHasher.csv`, (err) => {
                 if (err) {
-                  console.error(err)
+                  console.error('File not deleted:' + err)
                 } else {
                   console.log('File is deleted.')
                 }

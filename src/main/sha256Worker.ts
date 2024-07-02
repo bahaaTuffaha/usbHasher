@@ -17,12 +17,10 @@ export async function calculateSHA256(filepath) {
 // console.log('Worker starting for:', workerData.filePath) // Log when the worker starts
 
 ;(async () => {
-  try {
-    const newSha = await calculateSHA256(workerData.filePath)
-    parentPort.postMessage(newSha)
-  } catch (e) {
+  const newSha = await calculateSHA256(workerData.filePath).catch((e) => {
     console.log('Worker is saying:' + e)
-  }
+  })
+  parentPort.postMessage(newSha)
 
   // console.log('Worker finished for:', workerData.filePath) // Log when the worker finishes
 })()
