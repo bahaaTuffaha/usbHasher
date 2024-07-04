@@ -65,55 +65,6 @@ export const ComparisonAccordion = ({ data }: { data: compareDataType[] }) => {
             </AccordionItem>
           ))}
         </ul>
-        {/* <table className=" border-collapse border border-gray-300 text-black rounded-md">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">Path</th>
-              <th className="border border-gray-300 px-4 py-2">Old SHA-256</th>
-              <th className="border border-gray-300 px-4 py-2">New SHA-256</th>
-              <th className="border border-gray-300 px-4 py-2">State</th>
-              <th className="border border-gray-300 px-4 py-2">Last Modified</th>
-              <th className="border border-gray-300 px-4 py-2">Created</th>
-            </tr>
-          </thead>
-          <tbody className="select-text">
-            {data.map((item, index) => (
-              <tr
-                style={{ height: 100 }}
-                key={index}
-                className="bg-white bg-opacity-70 even:bg-white"
-              >
-                <td
-                  style={{ color: styleState(item.state) }}
-                  className="border border-gray-300 px-4 py-2"
-                >
-                  {item.path}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-[12px]">
-                  {item.oldSha ?? 'NaN'}
-                </td>
-                <td className="border border-gray-300 px-4 py-2 text-[12px]">
-                  {item.newSha ?? 'NaN'}
-                </td>
-                <td
-                  style={{
-                    textDecoration: styleState(item.state) == 'red' ? 'line-through' : '',
-                    color: styleState(item.state)
-                  }}
-                  className="border border-gray-300 px-4 py-2"
-                >
-                  {item.state}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {item.lastModified ? new Date(item.lastModified).toLocaleString() : 'NaN'}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {item.creationDate ? new Date(item.creationDate).toLocaleString() : 'NaN'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table> */}
       </div>
     </div>
   )
