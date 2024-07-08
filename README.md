@@ -1,6 +1,8 @@
 # usbhasher
 
-An Electron application with React and TypeScript
+An Electron application made with React and TypeScript to hash all your files
+
+<img src="images/img1.png" alt="img1" width="80" height="80"></img>
 
 ## Recommended IDE Setup
 
