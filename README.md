@@ -2,7 +2,7 @@
 
 An Electron application made with React and TypeScript to hash all your files
 
-<img src="Readme_images/img1.png" alt="img1" width="80" height="80"></img>
+<img src="Readme_images/img1.png" alt="img1" width="100%" height="auto"></img>
 
 ## Recommended IDE Setup
 
